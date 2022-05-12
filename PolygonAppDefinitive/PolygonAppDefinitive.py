@@ -1,10 +1,15 @@
 import tkinter as tk
 import random
 import ctypes
+import numpy as np
 from tkinter import *
 from tkinter import colorchooser
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
+from random import seed
+from random import randint
+
+
 
 a = 752
 b = 1504
@@ -89,14 +94,39 @@ def exit():
 
 def draw_grid():
     c.delete("all")
-    hGap = b / gridDimension.get()
+    hGap = b / gridDimension.get() #coordinate griglia
     vGap = a / gridDimension.get()
+
+    h_coord= []
+    v_coord=[]
+    n=1
+    y = []
+    x = []
+    dim = gridDimension.get() * gridDimension.get()
+   
+
     # Creates all vertical lines at intevals of hGap
     for i in range(0, b, int(hGap)):
         c.create_line(i, 0, i, a, fill="black")
+        h_coord.append(hGap*i)
+        
     # Creates all horizontal lines at intevals of vGap
     for i in range(0, a, int(vGap)):
         c.create_line(0, i, b, i, fill="black")
+        v_coord.append(vGap*i)
+        
+    #i numeri dei lati devono essere pari. metto controllo per non farmi rompere
+    while(n%2) != 0:
+         n = np.random.randint(0, dim) #numero di lati del poligono
+
+    for i in range(0,n):
+        x.append(random.choice(h_coord))
+        y.append(random.choice(v_coord))
+    print(x)
+    print(y)
+    c.create_polygon(*x,*y, outline='#f11', fill='', width=2)
+   
+    #####non disegna piu. mettere regola per regolarita poligono
 
 def check_hand_enter():
     c.config(cursor="hand1")
