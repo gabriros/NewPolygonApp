@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PolygonAppDefinitive", "PolygonAppDefinitive\PolygonAppDefinitive.pyproj", "{F840ACB6-EA54-4735-8B73-365DAD338953}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F840ACB6-EA54-4735-8B73-365DAD338953}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F840ACB6-EA54-4735-8B73-365DAD338953}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7C6AE264-6C0B-4EC1-831D-EE66653F35B3}
+	EndGlobalSection
+EndGlobal
