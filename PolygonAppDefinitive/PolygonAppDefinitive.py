@@ -100,8 +100,8 @@ def draw_grid():
     h_coord= []
     v_coord=[]
     n=1
-    y = [2500]
-    x = [2500]
+    y = []
+    x = []
     dim = gridDimension.get() * gridDimension.get()
    
 
@@ -121,10 +121,9 @@ def draw_grid():
     for i in range(0,n):
         x.append(random.choice(h_coord))
         y.append(random.choice(v_coord))
-    x.sort()
-    y.sort()
-    x[len(x) - 1] = x[0]
-    y[len(x) - 1] = x[0]
+    #x.sort()
+    #y.sort()
+    
 
     
     c.create_polygon(list(x),list(y), outline='#f11', fill='red', width=2)
