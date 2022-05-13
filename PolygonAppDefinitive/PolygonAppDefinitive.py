@@ -100,21 +100,20 @@ def draw_grid():
     h_coord= []
     v_coord=[]
     n=1
-    y = []
-    x = []
+    y = [2500]
+    x = [2500]
     dim = gridDimension.get() * gridDimension.get()
    
 
     # Creates all vertical lines at intevals of hGap
     for i in range(0, b, int(hGap)):
         c.create_line(i, 0, i, a, fill="black")
-        h_coord.append(hGap*i)
-        
+        h_coord.append(i)
     # Creates all horizontal lines at intevals of vGap
     for i in range(0, a, int(vGap)):
         c.create_line(0, i, b, i, fill="black")
-        v_coord.append(vGap*i)
-        
+        v_coord.append(i)
+
     #i numeri dei lati devono essere pari. metto controllo per non farmi rompere
     while(n%2) != 0:
          n = np.random.randint(0, dim) #numero di lati del poligono
@@ -122,11 +121,15 @@ def draw_grid():
     for i in range(0,n):
         x.append(random.choice(h_coord))
         y.append(random.choice(v_coord))
-    print(x)
-    print(y)
-    c.create_polygon(*x,*y, outline='#f11', fill='', width=2)
-   
-    #####non disegna piu. mettere regola per regolarita poligono
+    x.sort()
+    y.sort()
+    x[len(x) - 1] = x[0]
+    y[len(x) - 1] = x[0]
+
+    
+    c.create_polygon(list(x),list(y), outline='#f11', fill='red', width=2)
+    #c.create_line(x[i],y[i],x[i],y[i], fill="red", width=10)
+        
 
 def check_hand_enter():
     c.config(cursor="hand1")
