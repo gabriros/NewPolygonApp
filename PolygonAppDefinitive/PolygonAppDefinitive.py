@@ -100,8 +100,29 @@ def draw_grid():
     h_coord= []
     v_coord=[]
     n=1
+
+    lenghtx = 0
+    lenghty = 0
+    middlex = 0
+    middley = 0
+
+    #coordinate x e y
     y = []
     x = []
+
+    #valori estremi x e y
+    epx = [16,19]
+    epy = [17,18]
+
+    #divisione valori interni random
+    y1 = []
+    y2 = []
+    x1 = []
+    x2 = []
+
+    #vector
+    vect1 = [],[]
+
     dim = gridDimension.get() * gridDimension.get()
    
 
@@ -121,13 +142,48 @@ def draw_grid():
     for i in range(0,n):
         x.append(random.choice(h_coord))
         y.append(random.choice(v_coord))
-    #x.sort()
-    #y.sort()
+    
+    #li ordino
+    x.sort()
+    y.sort()
+
+    #isolo punti estremi epx 
+    epx [0] = x[0]
+    epx [1] = x[len(x) - 1]
+    
+    #elimino punti estremi da x
+    del x[0]
+    del x[len(x) - 1]
+    
+    #isolo punti estremi epy
+    epy [0] = y[0]
+    epy [1] = y[len(y) - 1]
+
+    #elimino punti estremi da y
+    del y[0]
+    del y[len(y) - 1]
+    
+    #divido casualmente i punti interni in 2 catene
+    random.shuffle(x)
+    random.shuffle(y)
+
+    lenghtx = len(x)
+    middlex = (len(x)//2)
+    x1 = x[:middlex]
+    x2 = x[middlex:]
     
 
+    lenghty = (len(y))
+    middley = (len(y)//2)
+    y1 = y[0:middley]
+    y2 = y[middley:]
+
+    #accoppio casualmente le coordinate
     
-    c.create_polygon(list(x),list(y), outline='#f11', fill='red', width=2)
-    #c.create_line(x[i],y[i],x[i],y[i], fill="red", width=10)
+
+
+    c.create_polygon(list(y1),list(x1), outline='#f11', fill='red', width=2)
+    
         
 
 def check_hand_enter():
