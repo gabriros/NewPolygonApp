@@ -28,6 +28,7 @@ hGap = 0
 rectPoints = []
 triPoints = []
 res_list = []
+greenPoli = [(0, 0)]
 
 
 user32 = ctypes.windll.user32
@@ -196,8 +197,10 @@ def draw_grid():
 def refresh_grid():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
-    #print("refreshgrid oldPoints = ", oldPoints)
 
+    #print("refreshgrid oldPoints = ", oldPoints)
+    greenPoli.append(res_list)
+  
     # [(400, 800), (0, 600), (0, 400), (0, 0), (600, 200), (400, 800)]
     
     startingRectPoints = [(0, 0), (0, hGap), (hGap, hGap), (hGap, 0), (0, 0)]
@@ -206,8 +209,13 @@ def refresh_grid():
     c.create_polygon(oldPoints, outline='', fill='red', width=2,)
     if(l.get() == 0):
         c.create_polygon(startingRectPoints, outline='', fill='green', width=2,)
+        for i in range(0, len(greenPoli), 1):
+            c.create_polygon(greenPoli[i], outline='', fill='green', width=2,)
+        
     if(l.get() == 1):
         c.create_polygon(startingTriPoints, outline='', fill='green', width=2,)
+        for i in range(0, len(greenPoli), 1):
+            c.create_polygon(greenPoli[i], outline='', fill='green', width=2,)
 
     global rectPoints, triPoints
     rectPoints = startingRectPoints
@@ -225,10 +233,17 @@ def move_down():
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
     control = True
     global res_list, rectPoints, triPoints
-    xCoord, yCoord = zip(*rectPoints)
 
-    res_list = list(rectPoints)
+    if(l.get() == 0):
+        xCoord, yCoord = zip(*rectPoints)
+        res_list = list(rectPoints)
+    else:
+        xCoord, yCoord = zip(*triPoints)
+        res_list = list(triPoints)
+
+    
     temp_list = res_list
+   
     print("TempList[] = ", temp_list)
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i], yCoord[i] + hGap)
@@ -239,18 +254,21 @@ def move_down():
             messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
             break
 
-    
     if (control == True):
         res_list = temp_list
-    #print("Res_List = ", res_list)
-    #print("Res_list [0] = ", res_list[0])
-
-    #print("rectPoints after res_list =", rectPoints)
-    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
-    c.create_polygon(res_list, outline='', fill='green', width=2,)
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+    else:
+        move_up()
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
  
-    rectPoints = res_list
-
+    #c.create_polygon(res_list, outline='', fill='green', width=2,)
+    if(l.get() == 0):
+        rectPoints = res_list
+    else:
+        triPoints = res_list
+    
     # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(i, 0, i, canvasDimension, fill="black")
@@ -261,26 +279,44 @@ def move_down():
 def move_up():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    control = True
     global res_list, rectPoints, triPoints
-    xCoord, yCoord = zip(*rectPoints)
+    
 
-    res_list = list(rectPoints)
-    for i in range (0, len(res_list), 1):
-        res_list[i] = (xCoord[i], yCoord[i] - hGap)
-        if(yCoord[i] < 0 ):
+    if(l.get() == 0):
+        xCoord, yCoord = zip(*rectPoints)
+        res_list = list(rectPoints)
+    else:
+        xCoord, yCoord = zip(*triPoints)
+        res_list = list(triPoints)
+
+    temp_list = res_list
+   
+    print("TempList[] = ", temp_list)
+    for i in range (0, len(temp_list), 1):
+        temp_list[i] = (xCoord[i], yCoord[i] - hGap)
+
+    for i in range (0, len(yCoord), 1):
+        if(yCoord[i] <= 0):
+            control = False
             messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
             break
-        
 
-    print("Res_List = ", res_list)
-    print("Res_list [0] = ", res_list[0])
-
-    print("rectPoints after res_list =", rectPoints)
-    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
-    c.create_polygon(res_list, outline='', fill='green', width=2,)
-
-    rectPoints = res_list
-
+    if (control == True):
+        res_list = temp_list
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+    else:
+        move_down()
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+ 
+    #c.create_polygon(res_list, outline='', fill='green', width=2,)
+ 
+    if(l.get() == 0):
+        rectPoints = res_list
+    else:
+        triPoints = res_list
     # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(i, 0, i, canvasDimension, fill="black")
@@ -292,24 +328,42 @@ def move_up():
 def move_right():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    control = True
     global res_list, rectPoints, triPoints
-    xCoord, yCoord = zip(*rectPoints)
+    if(l.get() == 0):
+        xCoord, yCoord = zip(*rectPoints)
+        res_list = list(rectPoints)
+    else:
+        xCoord, yCoord = zip(*triPoints)
+        res_list = list(triPoints)
 
-    res_list = list(rectPoints)
-    for i in range (0, len(res_list), 1):
-        res_list[i] = (xCoord[i] + hGap, yCoord[i])
-        if(xCoord[i] > canvasDimension - hGap):
+    temp_list = res_list
+   
+    print("TempList[] = ", temp_list)
+    for i in range (0, len(temp_list), 1):
+        temp_list[i] = (xCoord[i] + hGap, yCoord[i])
+
+    for i in range (0, len(xCoord), 1):
+        if(xCoord[i] >= canvasDimension):
+            control = False
             messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
             break
 
-    print("Res_List = ", res_list)
-    print("Res_list [0] = ", res_list[0])
-
-    print("rectPoints after res_list =", rectPoints)
-    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
-    c.create_polygon(res_list, outline='', fill='green', width=2,)
-
-    rectPoints = res_list
+    if (control == True):
+        res_list = temp_list
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+    else:
+        move_left()
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+ 
+    #c.create_polygon(res_list, outline='', fill='green', width=2,)
+ 
+    if(l.get() == 0):
+        rectPoints = res_list
+    else:
+        triPoints = res_list
 
     # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
@@ -322,25 +376,41 @@ def move_right():
 def move_left():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    control = True
     global res_list, rectPoints, triPoints
-    xCoord, yCoord = zip(*rectPoints)
+    if(l.get() == 0):
+        xCoord, yCoord = zip(*rectPoints)
+        res_list = list(rectPoints)
+    else:
+        xCoord, yCoord = zip(*triPoints)
+        res_list = list(triPoints)
+    temp_list = res_list
+   
+    print("TempList[] = ", temp_list)
+    for i in range (0, len(temp_list), 1):
+        temp_list[i] = (xCoord[i] - hGap, yCoord[i])
 
-    res_list = list(rectPoints)
-    for i in range (0, len(res_list), 1):
-        res_list[i] = (xCoord[i] - hGap, yCoord[i])
-        if(xCoord[i] < 0 + hGap):
+    for i in range (0, len(xCoord), 1):
+        if(xCoord[i] <= 0):
+            control = False
             messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
             break
 
-    print("Res_List = ", res_list)
-    print("Res_list [0] = ", res_list[0])
-
-    print("rectPoints after res_list =", rectPoints)
-    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
-    c.create_polygon(res_list, outline='', fill='green', width=2,)
-
-    rectPoints = res_list
-
+    if (control == True):
+        res_list = temp_list
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+    else:
+        move_right()
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+ 
+    #c.create_polygon(res_list, outline='', fill='green', width=2,)
+ 
+    if(l.get() == 0):
+        rectPoints = res_list
+    else:
+        triPoints = res_list
     # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(i, 0, i, canvasDimension, fill="black")
