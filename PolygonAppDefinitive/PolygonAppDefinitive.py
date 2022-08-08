@@ -1,6 +1,9 @@
 import tkinter as tk
 import random
+from turtle import Screen
+import matplotlib
 import ctypes
+import sklearn
 import numpy as np
 from tkinter import *
 from tkinter import colorchooser
@@ -11,18 +14,24 @@ from random import randint
 import sys
 import math
 import matplotlib.pyplot as plt
-import 
+from sklearn.preprocessing import MinMaxScaler
+
+canvasDimension = 800
+
+h_coord= []
+v_coord=[]
+oldPoints = []
+side = 0
+hGap = 0
 
 
-
-screenH = 752
-screenW = 1504
 user32 = ctypes.windll.user32
+
 if(user32.GetSystemMetrics(0) == 2560 and user32.GetSystemMetrics(1) == 1440):
-    screenH=1000
+    canvasDimension=1000
     screenW=2000 
 elif(user32.GetSystemMetrics(0) == 1280 and user32.GetSystemMetrics(1) == 720):
-    screenH=501
+    canvasDimension=501
     screenW=1003
 
 colors = [(126, 150, 194), '#7e96c2']
@@ -34,6 +43,7 @@ window.title("PolygonApp")
 window.grid_rowconfigure(0, weight=1)
 window.columnconfigure(0, weight=1)
 window.attributes('-fullscreen',True)
+l = tk.IntVar()
 
 #Menu Page
 MenuPage = tk.Frame(window, bg = colors[1], )
@@ -67,8 +77,6 @@ GamePage.grid_rowconfigure(4, weight=1, pad=7)
 GamePage.grid_columnconfigure(0, weight=1)
 GamePage.grid_columnconfigure(1, weight=1, pad=7)
 GamePage.grid_columnconfigure(2, weight=1, pad=7)
-l = tk.IntVar();
-
 
 #Methods
 def random_partition(a):
@@ -82,8 +90,8 @@ def random_partition(a):
     return b, c
 
 def get_deltas(n):
-    de = [random.random() for _ in range(n)]
-    print('\n', de)
+    de = [random.choice(h_coord) for _ in range(n)]
+    print('\n' + "DE =", de)
     de.sort()
     dep, dem = random_partition(de[1:-1])
     dem.reverse()
@@ -91,8 +99,8 @@ def get_deltas(n):
     deltas = [des[i] - des[i-1] for i in range(1, len(des))]
     return deltas, (de[0], de[-1])
 
-def get_xyq(n, x, y):
-    print (x)
+def get_xyq(n):
+    
     print( '\n' '\n')
     
     x, (a1, a2) = get_deltas(n)
@@ -108,7 +116,7 @@ def get_xyq(n, x, y):
     ymin = min([p[1] for p in points])
     dx = a1 - xmin
     dy = b1 - ymin
-    points = np.array([(p[0]+dx, p[1]+dy) for p in points])
+    points = [(p[0]+dx, p[1]+dy) for p in points]
     print("\n", points)
     return points
 
@@ -139,61 +147,67 @@ def exit():
 
 def draw_grid():
     c.delete("all")
-    hGap = screenW / gridDimension.get() #coordinate griglia
-    vGap = screenH / gridDimension.get()
-
-    h_coord= []
-    v_coord=[]
+    hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    vGap = canvasDimension / gridDimension.get()
+    side = hGap
     n=1
 
-    #coordinate x e y
-    y = []
-    x = []
-
     # Creates all vertical lines at intevals of hGap
-    for i in range(0, screenW, int(hGap)):
-        c.create_line(i, 0, i, screenH, fill="black")
+    for i in range(0, canvasDimension, int(hGap)):
         h_coord.append(i)
     # Creates all horizontal lines at intevals of vGap
-    for i in range(0, screenH, int(vGap)):
-        c.create_line(0, i, screenW, i, fill="black")
+    for i in range(0, canvasDimension, int(vGap)):
         v_coord.append(i)
     
-    dim = gridDimension.get() * gridDimension.get()
+    dim = gridDimension.get()
 
     #Inizio algoritmo
     if len(sys.argv) == 2:
         dim = int(sys.argv[1])
-    points = get_xyq(dim, h_coord, v_coord)
+    points = get_xyq(dim)
 
-    vector1 = []
-    vector2 = []
-    #split points into two different arrays
-    for x, y in points:
-        vector1.append(x)
-        vector2.append(y)
-
-    vector1 = vector1.inverse_transform
-    vector2 = vector2 * 1000
-    print("\n", vector1)
-    print("\n", vector2)
-    qwerty = len(vector1)
-
-    if (qwerty %2 != 0):
-        vector1 = vector1.pop()
-    for q in range(0, 1, len(vector1)):
-        c.create_polygon(vector1[q],vector2[q], outline='#f11', fill='red', width=2)
-        
+    print("h_coord", h_coord)
+    h_coord.clear() #reset h_coord
+    print("h_coord", h_coord)
+    newPoints = points
+    print("NewPoints =\n", newPoints)
     
-    #c.create_line(p[0] for p in points], [p[1] for p in points], outline='#f11', fill='red', width=2)
-     
+    NPDim = len(newPoints)
+    if (NPDim % 2 != 0):
+        newPoints.pop(1)
+    c.create_polygon(newPoints, fill='red', width=2,)
+    oldPoints = newPoints
+    print("OldPoints = ",oldPoints)
+        # Creates all vertical lines at intevals of hGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(i, 0, i, canvasDimension, fill="black")
+        #h_coord.append(i)
+    # Creates all horizontal lines at intevals of vGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(0, i, screenW, i, fill="black")
+        #v_coord.append(i)
 
-def check_hand_enter():
-    c.config(cursor="hand1")
-
-
-def check_hand_leave():
-    c.config(cursor="")
+def refresh_grid():
+    c.delete("all")
+    hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    print("refreshgrid oldPoints = ", oldPoints)
+    #c.create_polygon(newPoints, fill='red', width=2,)
+    
+    # [(400, 800), (0, 600), (0, 400), (0, 0), (600, 200), (400, 800)]
+    rectPoints = [(0, 0), (0, hGap), (hGap, hGap), (hGap, 0), (0, 0)]
+    triPoints = [(0, 0), (0, hGap), (hGap, hGap), (0, 0)]
+    #c.create_polygon(rectPoints, outline='', fill='green', width=2,)
+    if(l.get() == 0):
+        c.create_polygon(rectPoints, outline='', fill='green', width=2,)
+    if(l.get() == 1):
+        c.create_polygon(triPoints, outline='', fill='green', width=2,)
+    # Creates all vertical lines at intevals of hGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(i, 0, i, canvasDimension, fill="black")
+    # Creates all horizontal lines at intevals of vGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(0, i, screenW, i, fill="black")
+    
 
 #Menu Widgets
 playButton = tk.Button(MenuPage, text = "Play", command = gameFrame)
@@ -213,32 +227,52 @@ backgroundButton.grid(column=0, row=0)
 optBackButton.grid(column=0, row=1)
 
 #Game Widgets
-c = Canvas(GamePage, bg="white", height=screenH, width=screenW)
+c = Canvas(GamePage, bg="white", height=canvasDimension, width=canvasDimension) #cambiato solo screenW in screenH
 tag_name = "polygon"
-c.create_polygon((100, 100), (25, 100), (125, 100), (125, 25), outline='black', fill="black", tag=tag_name)
-c.tag_bind(tag_name, "<Enter>", lambda event: check_hand_enter())
-c.tag_bind(tag_name, "<Leave>", lambda event: check_hand_leave())
+
 gridDimension = Scale(GamePage, from_=5, to=20, orient=HORIZONTAL, label= "Cells")
-draw_grid()
-drawGrid = tk.Button(GamePage, text="Draw", command= draw_grid)
+#draw_grid()
+startButton = tk.Button(GamePage, text="Start", command= draw_grid)
+
+drawButton = tk.Button(GamePage, text="Draw", command= refresh_grid) # command= refresh_grid()
+
+upButton = tk.Button(GamePage, text="Up")
+
+downButton = tk.Button(GamePage, text="Down")
+
+rightButton = tk.Button(GamePage, text="Right")
+
+leftButton = tk.Button(GamePage, text="Left")
+
+doneButton = tk.Button(GamePage, text="Done")
+
 rectangle = tk.Radiobutton(GamePage, text="Rectangle", variable=l, value=0)
-rectBase = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Base")
-rectHeight = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Height")
+#rectBase = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Base")
+#rectHeight = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Height")
 triangle = tk.Radiobutton(GamePage, text="Triangle", variable=l, value=1)
-triBase = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Base")
-triHeight = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Height")
+#triBase = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Base")
+#triHeight = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Height")
 gameBackButton = tk.Button(GamePage, text = "Menu", command = menuFromGame)
 
 c.grid(sticky="NW", rowspan=2, columnspan=2, padx=(30,0), pady=(30,0))
 gridDimension.grid(sticky="SW", row=0, column=2, pady=30)
-drawGrid.grid(sticky="NW", row=1, column=2)
+startButton.grid(sticky="NW", row=1, column=2)
 rectangle.grid( row=2, column=0, padx=200, pady=(0,0))
-rectBase.grid(row=3, column=0, padx=200, pady=(0,0))
-rectHeight.grid(row=4, column=0, padx=200, pady=(0,30))
+drawButton.grid(row=3, column=0, padx=200, pady=(0,0))
+
+upButton.grid(sticky="W",row=0, column=1, padx=200, pady=(0,0))
+
+downButton.grid(sticky="S", row=0, column=1, padx=200, pady=(0,30))
+
 triangle.grid(sticky="W", row=2, column=1)
-triBase.grid(sticky="W" ,row=3, column=1)
-triHeight.grid(sticky="W" ,row=4, column=1, pady=(0, 30))
+
+rightButton.grid(sticky="E",row=0, column=1, padx = 50)
+
+leftButton.grid(sticky="W", row=0, column=1, padx = (50, 0))
+
 gameBackButton.grid(sticky="EW", row=4, column=2, padx=30)
+
+
 
 
 MenuPage.pack(fill = BOTH, expand = True)
