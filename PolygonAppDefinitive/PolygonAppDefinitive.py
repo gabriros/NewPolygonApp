@@ -1,3 +1,4 @@
+from ctypes.wintypes import RECT
 import tkinter as tk
 import random
 from turtle import Screen
@@ -7,6 +8,7 @@ import sklearn
 import numpy as np
 from tkinter import *
 from tkinter import colorchooser
+from tkinter import messagebox
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
 from random import seed
@@ -23,6 +25,9 @@ v_coord=[]
 oldPoints = []
 side = 0
 hGap = 0
+rectPoints = []
+triPoints = []
+res_list = []
 
 
 user32 = ctypes.windll.user32
@@ -166,48 +171,182 @@ def draw_grid():
         dim = int(sys.argv[1])
     points = get_xyq(dim)
 
-    print("h_coord", h_coord)
+    #print("h_coord", h_coord)
     h_coord.clear() #reset h_coord
-    print("h_coord", h_coord)
+    #print("h_coord", h_coord)
     newPoints = points
-    print("NewPoints =\n", newPoints)
+    #print("NewPoints =\n", newPoints)
     
     NPDim = len(newPoints)
     if (NPDim % 2 != 0):
         newPoints.pop(1)
     c.create_polygon(newPoints, fill='red', width=2,)
+    global oldPoints
     oldPoints = newPoints
-    print("OldPoints = ",oldPoints)
+    #print("OldPoints = ",oldPoints)
         # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(i, 0, i, canvasDimension, fill="black")
-        #h_coord.append(i)
+        
     # Creates all horizontal lines at intevals of vGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(0, i, screenW, i, fill="black")
-        #v_coord.append(i)
+        
 
 def refresh_grid():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
-    print("refreshgrid oldPoints = ", oldPoints)
-    #c.create_polygon(newPoints, fill='red', width=2,)
-    
+    #print("refreshgrid oldPoints = ", oldPoints)
+
     # [(400, 800), (0, 600), (0, 400), (0, 0), (600, 200), (400, 800)]
-    rectPoints = [(0, 0), (0, hGap), (hGap, hGap), (hGap, 0), (0, 0)]
-    triPoints = [(0, 0), (0, hGap), (hGap, hGap), (0, 0)]
-    #c.create_polygon(rectPoints, outline='', fill='green', width=2,)
+    
+    startingRectPoints = [(0, 0), (0, hGap), (hGap, hGap), (hGap, 0), (0, 0)]
+    startingTriPoints = [(0, 0), (0, hGap), (hGap, hGap), (0, 0)]
+
+    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
     if(l.get() == 0):
-        c.create_polygon(rectPoints, outline='', fill='green', width=2,)
+        c.create_polygon(startingRectPoints, outline='', fill='green', width=2,)
     if(l.get() == 1):
-        c.create_polygon(triPoints, outline='', fill='green', width=2,)
+        c.create_polygon(startingTriPoints, outline='', fill='green', width=2,)
+
+    global rectPoints, triPoints
+    rectPoints = startingRectPoints
+    triPoints = startingTriPoints
+    
     # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(i, 0, i, canvasDimension, fill="black")
     # Creates all horizontal lines at intevals of vGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(0, i, screenW, i, fill="black")
+   
+def move_down():
+    c.delete("all")
+    hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    control = True
+    global res_list, rectPoints, triPoints
+    xCoord, yCoord = zip(*rectPoints)
+
+    res_list = list(rectPoints)
+    temp_list = res_list
+    print("TempList[] = ", temp_list)
+    for i in range (0, len(temp_list), 1):
+        temp_list[i] = (xCoord[i], yCoord[i] + hGap)
+
+    for i in range (0, len(yCoord), 1):
+        if(yCoord[i] >= canvasDimension):
+            control = False
+            messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
+            break
+
     
+    if (control == True):
+        res_list = temp_list
+    #print("Res_List = ", res_list)
+    #print("Res_list [0] = ", res_list[0])
+
+    #print("rectPoints after res_list =", rectPoints)
+    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+    c.create_polygon(res_list, outline='', fill='green', width=2,)
+ 
+    rectPoints = res_list
+
+    # Creates all vertical lines at intevals of hGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(i, 0, i, canvasDimension, fill="black")
+    # Creates all horizontal lines at intevals of vGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(0, i, screenW, i, fill="black")
+
+def move_up():
+    c.delete("all")
+    hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    global res_list, rectPoints, triPoints
+    xCoord, yCoord = zip(*rectPoints)
+
+    res_list = list(rectPoints)
+    for i in range (0, len(res_list), 1):
+        res_list[i] = (xCoord[i], yCoord[i] - hGap)
+        if(yCoord[i] < 0 ):
+            messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
+            break
+        
+
+    print("Res_List = ", res_list)
+    print("Res_list [0] = ", res_list[0])
+
+    print("rectPoints after res_list =", rectPoints)
+    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+    c.create_polygon(res_list, outline='', fill='green', width=2,)
+
+    rectPoints = res_list
+
+    # Creates all vertical lines at intevals of hGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(i, 0, i, canvasDimension, fill="black")
+    # Creates all horizontal lines at intevals of vGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(0, i, screenW, i, fill="black")
+
+
+def move_right():
+    c.delete("all")
+    hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    global res_list, rectPoints, triPoints
+    xCoord, yCoord = zip(*rectPoints)
+
+    res_list = list(rectPoints)
+    for i in range (0, len(res_list), 1):
+        res_list[i] = (xCoord[i] + hGap, yCoord[i])
+        if(xCoord[i] > canvasDimension - hGap):
+            messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
+            break
+
+    print("Res_List = ", res_list)
+    print("Res_list [0] = ", res_list[0])
+
+    print("rectPoints after res_list =", rectPoints)
+    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+    c.create_polygon(res_list, outline='', fill='green', width=2,)
+
+    rectPoints = res_list
+
+    # Creates all vertical lines at intevals of hGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(i, 0, i, canvasDimension, fill="black")
+    # Creates all horizontal lines at intevals of vGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(0, i, screenW, i, fill="black")
+
+
+def move_left():
+    c.delete("all")
+    hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    global res_list, rectPoints, triPoints
+    xCoord, yCoord = zip(*rectPoints)
+
+    res_list = list(rectPoints)
+    for i in range (0, len(res_list), 1):
+        res_list[i] = (xCoord[i] - hGap, yCoord[i])
+        if(xCoord[i] < 0 + hGap):
+            messagebox.showinfo(title = 'Error', message = '- - - Wrong coordinates- - - ')
+            break
+
+    print("Res_List = ", res_list)
+    print("Res_list [0] = ", res_list[0])
+
+    print("rectPoints after res_list =", rectPoints)
+    c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+    c.create_polygon(res_list, outline='', fill='green', width=2,)
+
+    rectPoints = res_list
+
+    # Creates all vertical lines at intevals of hGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(i, 0, i, canvasDimension, fill="black")
+    # Creates all horizontal lines at intevals of vGap
+    for i in range(0, canvasDimension, int(hGap)):
+        c.create_line(0, i, screenW, i, fill="black")
 
 #Menu Widgets
 playButton = tk.Button(MenuPage, text = "Play", command = gameFrame)
@@ -236,13 +375,13 @@ startButton = tk.Button(GamePage, text="Start", command= draw_grid)
 
 drawButton = tk.Button(GamePage, text="Draw", command= refresh_grid) # command= refresh_grid()
 
-upButton = tk.Button(GamePage, text="Up")
+upButton = tk.Button(GamePage, text="Up", command = move_up)
 
-downButton = tk.Button(GamePage, text="Down")
+downButton = tk.Button(GamePage, text="Down", command = move_down)
 
-rightButton = tk.Button(GamePage, text="Right")
+rightButton = tk.Button(GamePage, text="Right", command = move_right)
 
-leftButton = tk.Button(GamePage, text="Left")
+leftButton = tk.Button(GamePage, text="Left", command = move_left)
 
 doneButton = tk.Button(GamePage, text="Done")
 
@@ -260,15 +399,15 @@ startButton.grid(sticky="NW", row=1, column=2)
 rectangle.grid( row=2, column=0, padx=200, pady=(0,0))
 drawButton.grid(row=3, column=0, padx=200, pady=(0,0))
 
-upButton.grid(sticky="W",row=0, column=1, padx=200, pady=(0,0))
+upButton.grid(sticky="N",row=0, column=1, pady=(300,0))
 
-downButton.grid(sticky="S", row=0, column=1, padx=200, pady=(0,30))
+downButton.grid(sticky="S", row=0, column=1, pady=(0,300))
+
+rightButton.grid(sticky="E",row=0, column=1, padx = (0, 350))
+
+leftButton.grid(sticky="W", row=0, column=1, padx = (350, 0))
 
 triangle.grid(sticky="W", row=2, column=1)
-
-rightButton.grid(sticky="E",row=0, column=1, padx = 50)
-
-leftButton.grid(sticky="W", row=0, column=1, padx = (50, 0))
 
 gameBackButton.grid(sticky="EW", row=4, column=2, padx=30)
 
