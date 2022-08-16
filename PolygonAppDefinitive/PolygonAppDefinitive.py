@@ -209,13 +209,9 @@ def refresh_grid():
     c.create_polygon(oldPoints, outline='', fill='red', width=2,)
     if(l.get() == 0):
         c.create_polygon(startingRectPoints, outline='', fill='green', width=2,)
-        for i in range(0, len(greenPoli), 1):
-            c.create_polygon(greenPoli[i], outline='', fill='green', width=2,)
         
     if(l.get() == 1):
         c.create_polygon(startingTriPoints, outline='', fill='green', width=2,)
-        for i in range(0, len(greenPoli), 1):
-            c.create_polygon(greenPoli[i], outline='', fill='green', width=2,)
 
     global rectPoints, triPoints
     rectPoints = startingRectPoints
