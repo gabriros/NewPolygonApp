@@ -264,7 +264,7 @@ def move_down():
     
     temp_list = res_list
    
-    #print("TempList[] = ", temp_list)
+
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i], yCoord[i] + hGap)
 
@@ -312,7 +312,7 @@ def move_up():
 
     temp_list = res_list
    
-    #print("TempList[] = ", temp_list)
+
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i], yCoord[i] - hGap)
 
@@ -359,7 +359,7 @@ def move_right():
 
     temp_list = res_list
    
-    print("TempList[] = ", temp_list)
+
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i] + hGap, yCoord[i])
 
