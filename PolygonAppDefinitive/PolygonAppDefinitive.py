@@ -11,7 +11,7 @@ from tkinter import colorchooser
 from tkinter import messagebox
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
-from random import seed
+from random import randrange, seed
 from random import randint
 import sys
 import math
@@ -97,7 +97,7 @@ def random_partition(a):
 
 def get_deltas(n):
     de = [random.choice(h_coord) for _ in range(n)]
-    print('\n' + "DE =", de)
+    
     de.sort()
     dep, dem = random_partition(de[1:-1])
     dem.reverse()
@@ -111,7 +111,7 @@ def get_xyq(n):
     
     x, (a1, a2) = get_deltas(n)
     y, (b1, b2) = get_deltas(n)
-    print (x)
+    
     random.shuffle(y)
     vectors = [(x[i], y[i]) for i in range(n)]
     vectors.sort(key=lambda v: math.atan2(v[1], v[0]))
@@ -123,7 +123,6 @@ def get_xyq(n):
     dx = a1 - xmin
     dy = b1 - ymin
     points = [(p[0]+dx, p[1]+dy) for p in points]
-    print("\n", points)
     return points
 
 def optionsFrame():
@@ -193,14 +192,21 @@ def draw_grid():
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(0, i, screenW, i, fill="black")
         
+class greenPoligon:
+    coordinate = []
 
 def refresh_grid():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
 
     #print("refreshgrid oldPoints = ", oldPoints)
-    greenPoli.append(res_list)
-  
+    greenPoli1 = greenPoligon()
+    setattr(greenPoli1,'coordinate',res_list)
+
+    
+    #print("greenpoli1", greenPoli1)
+    #print("greenpoli", greenPoli)
+
     # [(400, 800), (0, 600), (0, 400), (0, 0), (600, 200), (400, 800)]
     
     startingRectPoints = [(0, 0), (0, hGap), (hGap, hGap), (hGap, 0), (0, 0)]
@@ -217,6 +223,24 @@ def refresh_grid():
     rectPoints = startingRectPoints
     triPoints = startingTriPoints
     
+    for i in range(1,len(greenPoli),1):
+        z = id(greenPoli[i])
+        print("z",z)
+        a = ctypes.cast(z, ctypes.py_object).value
+        print("a",a)
+        antonio = list(a)
+        print("antonio",antonio)
+        c.create_polygon(antonio, outline='', fill='green', width=2,)
+        
+
+    #Create all green poly
+    #for i in range(1, len(greenPoli), 1):
+        #z = id(greenPoli[i])
+        #a = ctypes.cast(z, ctypes.py_object).value
+        #c.create_polygon(a.coordinate, outline='', fill='green', width=2,)
+        #print("antoni0", a)
+ 
+
     # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(i, 0, i, canvasDimension, fill="black")
@@ -240,7 +264,7 @@ def move_down():
     
     temp_list = res_list
    
-    print("TempList[] = ", temp_list)
+    #print("TempList[] = ", temp_list)
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i], yCoord[i] + hGap)
 
@@ -288,7 +312,7 @@ def move_up():
 
     temp_list = res_list
    
-    print("TempList[] = ", temp_list)
+    #print("TempList[] = ", temp_list)
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i], yCoord[i] - hGap)
 
