@@ -11,7 +11,7 @@ from tkinter import colorchooser
 from tkinter import messagebox
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
-from random import seed
+from random import randrange, seed
 from random import randint
 import sys
 import math
@@ -29,6 +29,7 @@ rectPoints = []
 triPoints = []
 res_list = []
 greenPoli = [(0, 0)]
+counterRotate = 0
 
 
 user32 = ctypes.windll.user32
@@ -97,7 +98,7 @@ def random_partition(a):
 
 def get_deltas(n):
     de = [random.choice(h_coord) for _ in range(n)]
-    print('\n' + "DE =", de)
+    
     de.sort()
     dep, dem = random_partition(de[1:-1])
     dem.reverse()
@@ -111,7 +112,7 @@ def get_xyq(n):
     
     x, (a1, a2) = get_deltas(n)
     y, (b1, b2) = get_deltas(n)
-    print (x)
+    
     random.shuffle(y)
     vectors = [(x[i], y[i]) for i in range(n)]
     vectors.sort(key=lambda v: math.atan2(v[1], v[0]))
@@ -123,7 +124,6 @@ def get_xyq(n):
     dx = a1 - xmin
     dy = b1 - ymin
     points = [(p[0]+dx, p[1]+dy) for p in points]
-    print("\n", points)
     return points
 
 def optionsFrame():
@@ -182,8 +182,10 @@ def draw_grid():
     if (NPDim % 2 != 0):
         newPoints.pop(1)
     c.create_polygon(newPoints, fill='red', width=2,)
-    global oldPoints
+
+    global oldPoints, counterRotate
     oldPoints = newPoints
+    counterRotate = 0
     #print("OldPoints = ",oldPoints)
         # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
@@ -193,14 +195,21 @@ def draw_grid():
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(0, i, screenW, i, fill="black")
         
+class greenPoligon:
+    coordinate = []
 
 def refresh_grid():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
 
     #print("refreshgrid oldPoints = ", oldPoints)
-    greenPoli.append(res_list)
-  
+    greenPoli1 = greenPoligon()
+    setattr(greenPoli1,'coordinate',res_list)
+
+    
+    #print("greenpoli1", greenPoli1)
+    #print("greenpoli", greenPoli)
+
     # [(400, 800), (0, 600), (0, 400), (0, 0), (600, 200), (400, 800)]
     
     startingRectPoints = [(0, 0), (0, hGap), (hGap, hGap), (hGap, 0), (0, 0)]
@@ -213,10 +222,29 @@ def refresh_grid():
     if(l.get() == 1):
         c.create_polygon(startingTriPoints, outline='', fill='green', width=2,)
 
-    global rectPoints, triPoints
+    global rectPoints, triPoints, counterRotate, res_list
     rectPoints = startingRectPoints
     triPoints = startingTriPoints
+    counterRotate = 0
     
+    for i in range(1,len(greenPoli),1):
+        z = id(greenPoli[i])
+        print("z",z)
+        a = ctypes.cast(z, ctypes.py_object).value
+        print("a",a)
+        antonio = list(a)
+        print("antonio",antonio)
+        c.create_polygon(antonio, outline='', fill='green', width=2,)
+        
+
+    #Create all green poly
+    #for i in range(1, len(greenPoli), 1):
+        #z = id(greenPoli[i])
+        #a = ctypes.cast(z, ctypes.py_object).value
+        #c.create_polygon(a.coordinate, outline='', fill='green', width=2,)
+        #print("antoni0", a)
+ 
+
     # Creates all vertical lines at intevals of hGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(i, 0, i, canvasDimension, fill="black")
@@ -228,7 +256,8 @@ def move_down():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
     control = True
-    global res_list, rectPoints, triPoints
+    global res_list, rectPoints, triPoints, counterRotate
+    counterRotate = 0
 
     if(l.get() == 0):
         xCoord, yCoord = zip(*rectPoints)
@@ -240,7 +269,7 @@ def move_down():
     
     temp_list = res_list
    
-    print("TempList[] = ", temp_list)
+
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i], yCoord[i] + hGap)
 
@@ -276,8 +305,8 @@ def move_up():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
     control = True
-    global res_list, rectPoints, triPoints
-    
+    global res_list, rectPoints, triPoints, counterRotate
+    counterRotate = 0    
 
     if(l.get() == 0):
         xCoord, yCoord = zip(*rectPoints)
@@ -288,7 +317,7 @@ def move_up():
 
     temp_list = res_list
    
-    print("TempList[] = ", temp_list)
+
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i], yCoord[i] - hGap)
 
@@ -325,7 +354,9 @@ def move_right():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
     control = True
-    global res_list, rectPoints, triPoints
+    global res_list, rectPoints, triPoints, counterRotate
+    counterRotate = 0
+
     if(l.get() == 0):
         xCoord, yCoord = zip(*rectPoints)
         res_list = list(rectPoints)
@@ -335,7 +366,7 @@ def move_right():
 
     temp_list = res_list
    
-    print("TempList[] = ", temp_list)
+
     for i in range (0, len(temp_list), 1):
         temp_list[i] = (xCoord[i] + hGap, yCoord[i])
 
@@ -373,7 +404,9 @@ def move_left():
     c.delete("all")
     hGap = canvasDimension / gridDimension.get() #coordinate griglia
     control = True
-    global res_list, rectPoints, triPoints
+    global res_list, rectPoints, triPoints, counterRotate
+    counterRotate = 0
+
     if(l.get() == 0):
         xCoord, yCoord = zip(*rectPoints)
         res_list = list(rectPoints)
@@ -413,6 +446,83 @@ def move_left():
     # Creates all horizontal lines at intevals of vGap
     for i in range(0, canvasDimension, int(hGap)):
         c.create_line(0, i, screenW, i, fill="black")
+
+
+def RotateTriangle():
+    tempTuple = (0, 0)
+    if(l.get() == 1):
+        c.delete("all")
+        hGap = canvasDimension / gridDimension.get() #coordinate griglia
+    
+        global res_list, rectPoints, triPoints, counterRotate
+     
+        xCoord, yCoord = zip(*triPoints)
+        res_list = list(triPoints)
+        #print("priscilla",res_list)
+        
+        if (counterRotate == 0):
+            #aggiorno i vertici
+            res_list[0] = (xCoord[0] + hGap, yCoord[0])
+            res_list[1] = (xCoord[1], yCoord[1] - hGap)
+            res_list[2] = (xCoord[2] - hGap, yCoord[2])
+
+            #riordino
+            tempTuple = res_list[0]
+            res_list[0] = res_list[1]
+            res_list[3] = res_list[1]
+            res_list[1] = res_list[2]
+            res_list[2] = tempTuple
+
+            counterRotate +=1
+            #[(0, 0.0), (0.0, 200.0), (200.0, 0), (0, 0.0)]
+        
+        elif (counterRotate == 1):
+            #aggiorno i vertici
+            res_list[0] = (xCoord[0] + hGap, yCoord[0])
+            res_list[1] = (xCoord[1], yCoord[1] - hGap)
+            res_list[2] = (xCoord[2], yCoord[2])
+            #print("priscilla nuovo",res_list)
+            #riordino
+            tempTuple = res_list[0]
+            res_list[0] = res_list[1]
+            res_list[3] = res_list[1]
+            res_list[1] = res_list[2]
+            res_list[2] = tempTuple
+            #print("priscilla ordinato 2",res_list)
+            counterRotate +=1
+            #[(0, 0.0), (200.0, 200.0), (200.0, 0), (0, 0.0)]
+        
+        elif (counterRotate == 2):
+            #aggiorno i vertici
+            res_list[0] = (xCoord[0] + hGap, yCoord[0])
+            res_list[1] = (xCoord[1] , yCoord[1])
+            res_list[2] = (xCoord[2], yCoord[2])
+            print("priscilla nuovo",res_list)
+            #riordino
+            tempTuple = res_list[0]
+            res_list[0] = res_list[1]
+            res_list[3] = res_list[1]
+            res_list[1] = res_list[2]
+            res_list[2] = tempTuple
+            print("priscilla ordinato",res_list)
+            counterRotate +=1
+            
+        elif (counterRotate == 3): 
+            counterRotate = 0
+        
+        c.create_polygon(oldPoints, outline='', fill='red', width=2,)
+        c.create_polygon(res_list, outline='', fill='green', width=2,)
+
+        # Creates all vertical lines at intevals of hGap
+        for i in range(0, canvasDimension, int(hGap)):
+            c.create_line(i, 0, i, canvasDimension, fill="black")
+        # Creates all horizontal lines at intevals of vGap
+        for i in range(0, canvasDimension, int(hGap)):
+            c.create_line(0, i, screenW, i, fill="black")
+    else:    
+        messagebox.showinfo(title = 'Error', message = '- - - The image is not a Triangle- - - ')
+
+
 
 #Menu Widgets
 playButton = tk.Button(MenuPage, text = "Play", command = gameFrame)
@@ -455,6 +565,7 @@ rectangle = tk.Radiobutton(GamePage, text="Rectangle", variable=l, value=0)
 #rectBase = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Base")
 #rectHeight = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Height")
 triangle = tk.Radiobutton(GamePage, text="Triangle", variable=l, value=1)
+rotateTriangle = tk.Button(GamePage, text = "Rotate", command = RotateTriangle)
 #triBase = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Base")
 #triHeight = Scale(GamePage, from_=1, to=10, orient=HORIZONTAL, label="Height")
 gameBackButton = tk.Button(GamePage, text = "Menu", command = menuFromGame)
@@ -474,7 +585,7 @@ rightButton.grid(sticky="E",row=0, column=1, padx = (0, 350))
 leftButton.grid(sticky="W", row=0, column=1, padx = (350, 0))
 
 triangle.grid(sticky="W", row=2, column=1)
-
+rotateTriangle.grid(sticky="SW", row=2, column=1, padx=100)
 gameBackButton.grid(sticky="EW", row=4, column=2, padx=30)
 
 
