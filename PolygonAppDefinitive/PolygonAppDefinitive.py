@@ -205,8 +205,9 @@ def refresh_grid():
     #print("refreshgrid oldPoints = ", oldPoints)
     greenPoli1 = greenPoligon()
     setattr(greenPoli1,'coordinate',res_list)
+    greenPoli.append(greenPoli1)
+    print(greenPoli)
 
-    
     #print("greenpoli1", greenPoli1)
     #print("greenpoli", greenPoli)
 
@@ -222,7 +223,7 @@ def refresh_grid():
     if(l.get() == 1):
         c.create_polygon(startingTriPoints, outline='', fill='green', width=2,)
 
-    global rectPoints, triPoints, counterRotate, res_list
+    global rectPoints, triPoints, counterRotate
     rectPoints = startingRectPoints
     triPoints = startingTriPoints
     counterRotate = 0
@@ -234,7 +235,7 @@ def refresh_grid():
         print("a",a)
         antonio = list(a)
         print("antonio",antonio)
-        c.create_polygon(antonio, outline='', fill='green', width=2,)
+        #c.create_polygon(antonio, outline='', fill='green', width=2,)
         
 
     #Create all green poly
@@ -497,14 +498,14 @@ def RotateTriangle():
             res_list[0] = (xCoord[0] + hGap, yCoord[0])
             res_list[1] = (xCoord[1] , yCoord[1])
             res_list[2] = (xCoord[2], yCoord[2])
-            print("priscilla nuovo",res_list)
+            #print("priscilla nuovo",res_list)
             #riordino
             tempTuple = res_list[0]
             res_list[0] = res_list[1]
             res_list[3] = res_list[1]
             res_list[1] = res_list[2]
             res_list[2] = tempTuple
-            print("priscilla ordinato",res_list)
+            #print("priscilla ordinato",res_list)
             counterRotate +=1
             
         elif (counterRotate == 3): 
